@@ -8,3 +8,4 @@ the element.
 The video tutorials I will be following
 throughout the project:
 1. https://www.youtube.com/watch?v=EO6OkltgudE
+2. https://www.youtube.com/watch?v=83L6B13ixQ0

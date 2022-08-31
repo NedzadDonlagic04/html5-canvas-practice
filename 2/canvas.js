@@ -25,14 +25,42 @@ const getRandom = value => {
 
 // Used to create a passed amount of rectangles with random colors
 const createRects = count => {
+    const storage = [];
+
     for(let i=0; i<count; i++)
     {
+        storage.push({
+            index: 0,
+            x: 0,
+            y: 0
+        });
+
         const index = getRandom(hslColors.length);
 
         c.fillStyle = hslColors[index];
 
         const x = getRandom(window.innerWidth);
         const y = getRandom(window.innerHeight);
+
+        drawRect(x, y);
+
+        [storage[i].index, storage[i].x, storage[i].y] = [index, x, y];
+    }
+
+    sessionStorage.setItem('rectLocation', JSON.stringify(storage));
+}
+
+// Used to restore the rectangles
+// When a screen is resized they get reset by saving them in a session I can make sure
+// they stay where they are until the site is reloaded
+const restoreRect = () => {
+    const storage = JSON.parse(sessionStorage.getItem('rectLocation'));
+
+    for(const item of storage)
+    {
+        const {index, x, y} = item;
+
+        c.fillStyle = hslColors[index];
 
         drawRect(x, y);
     }
@@ -45,5 +73,5 @@ window.addEventListener('resize', () => {
     canvas.height = window.innerHeight;
     canvas.width = window.innerWidth;
 
-    createRects(5);
+    restoreRect();
 })

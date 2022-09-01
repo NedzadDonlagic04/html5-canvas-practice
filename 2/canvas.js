@@ -23,6 +23,15 @@ const getRandom = value => {
     return Math.floor( Math.random() * value );
 }
 
+const getRandObj = () => {
+    const obj = {
+        x: getRandom(window.innerWidth),
+        y: getRandom(window.innerHeight)
+    }
+
+    return obj;
+}
+
 // Used to create a passed amount of rectangles with random colors
 const createRects = count => {
     const storage = [];
@@ -30,7 +39,7 @@ const createRects = count => {
     for(let i=0; i<count; i++)
     {
         storage.push({
-            index: 0,
+            color: 0,
             x: 0,
             y: 0
         });
@@ -39,12 +48,11 @@ const createRects = count => {
 
         c.fillStyle = hslColors[index];
 
-        const x = getRandom(window.innerWidth);
-        const y = getRandom(window.innerHeight);
+        const {x, y} = getRandObj();
 
         drawRect(x, y);
 
-        [storage[i].index, storage[i].x, storage[i].y] = [index, x, y];
+        [storage[i].color, storage[i].x, storage[i].y] = [hslColors[index], x, y];
     }
 
     sessionStorage.setItem('rectLocation', JSON.stringify(storage));
@@ -58,15 +66,85 @@ const restoreRect = () => {
 
     for(const item of storage)
     {
-        const {index, x, y} = item;
+        const {color, x, y} = item;
 
-        c.fillStyle = hslColors[index];
+        c.fillStyle = color;
 
         drawRect(x, y);
     }
 }
 
+// Used to create a single line
+const createLine = (startX, startY, x, y, lineWidth=2) => {
+    c.beginPath();
+    c.moveTo(startX, startY);
+    c.lineTo(x, y);
+    c.lineWidth = lineWidth;
+    c.stroke();
+}
+
+// Used to create a passed amount of lines with random colors
+const createLines = count => {
+    const storage = [];
+
+    let start, lastSpot;
+
+    for(let i=0; i<count; i++)
+    {
+        storage.push({
+            color: 0,
+            startX: 0,
+            startY: 0,
+            lastX: 0,
+            lastY: 0
+        });
+
+        const index = getRandom(hslColors.length);
+
+        c.strokeStyle = hslColors[index];
+
+        if(i === 0)
+        {
+            start = getRandObj();
+
+            lastSpot = getRandObj();
+            
+            createLine(start.x, start.y, lastSpot.x, lastSpot.y);
+        }
+        else
+        {
+            start = lastSpot;
+
+            lastSpot = getRandObj();
+            
+            createLine(start.x, start.y, lastSpot.x, lastSpot.y);
+        }
+
+        storage[i].color = hslColors[index];
+        [storage[i].startX, storage[i].startY] = [start.x, start.y];
+        [storage[i].lastX, storage[i].lastY] = [lastSpot.x, lastSpot.y];
+    }
+
+    sessionStorage.setItem('linesLocation', JSON.stringify(storage));
+}
+
+// Used to restore the lines
+// When a screen is resized they get reset by saving them in a session I can make sure
+// they stay where they are until the site is reloaded
+const restoreLines = () => {
+    const storage = JSON.parse(sessionStorage.getItem('linesLocation'));
+
+    for(const item of storage)
+    {
+        const { color, startX, startY, lastX, lastY } = item;
+
+        c.strokeStyle = color;
+        createLine(startX, startY, lastX, lastY);
+    }
+}
+
 createRects(5);
+createLines(5);
 
 // Used to redraw the elements on the canvas once the window changes size
 window.addEventListener('resize', () => {
@@ -74,4 +152,5 @@ window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
 
     restoreRect();
+    restoreLines();
 })

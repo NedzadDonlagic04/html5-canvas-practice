@@ -143,8 +143,61 @@ const restoreLines = () => {
     }
 }
 
-createRects(5);
-createLines(5);
+// Used to draw a single circle
+const drawCircle = (x, y) => {
+    c.beginPath();
+    c.arc(x, y, 50, 0, Math.PI * 2);
+    c.fill();
+    c.stroke();
+}
+
+// Used to create a passed amount of circles with random colors
+const drawCircles = count => {
+    const storage = [];
+
+    for(let i=0; i<count; i++)
+    {
+        storage.push({
+            color: 0,
+            x: 0,
+            y: 0
+        });
+
+        const index = getRandom(hslColors.length);
+
+        c.strokeStyle = hslColors[index];
+        c.fillStyle = hslColors[index];
+
+        const {x, y} = getRandObj();
+
+        drawCircle(x, y);
+
+        [storage[i].color, storage[i].x, storage[i].y] = [hslColors[index], x, y];
+    }
+
+    sessionStorage.setItem('circlesLocation', JSON.stringify(storage));
+}
+
+// Used to restore the circles
+// When a screen is resized they get reset by saving them in a session I can make sure
+// they stay where they are until the site is reloaded
+const restoreCircles = () => {
+    const storage = JSON.parse(sessionStorage.getItem('circlesLocation'));
+
+    for(const item of storage)
+    {
+        const {color, x, y} = item;
+
+        c.strokeStyle = color;
+        c.fillStyle = color;
+
+        drawCircle(x, y);
+    }
+}
+
+createRects(10);
+createLines(10);
+drawCircles(10);
 
 // Used to redraw the elements on the canvas once the window changes size
 window.addEventListener('resize', () => {
@@ -153,4 +206,5 @@ window.addEventListener('resize', () => {
 
     restoreRect();
     restoreLines();
+    restoreCircles();
 })

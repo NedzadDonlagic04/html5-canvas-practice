@@ -207,4 +207,4 @@ window.addEventListener('resize', () => {
     restoreRect();
     restoreLines();
     restoreCircles();
-})
+});

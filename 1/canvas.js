@@ -21,4 +21,4 @@ window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
 
     drawRect();
-})
+});
